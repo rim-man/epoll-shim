@@ -25,6 +25,10 @@
 #include <poll.h>
 #include <unistd.h>
 
+#if defined(EVFILT_EXCEPT) && !defined(__APPLE__)
+#define ELABLE_EVFILT_EXCEPT
+#endif
+
 static RegisteredFDsNode *
 registered_fds_node_create(int fd)
 {
@@ -126,7 +130,7 @@ get_needed_filters(RegisteredFDsNode *fd2_node)
 			    : EV_CLEAR;
 		}
 
-#ifdef EVFILT_EXCEPT
+#ifdef ELABLE_EVFILT_EXCEPT
 		needed_filters.evfilt_except = !!(fd2_node->events & EPOLLPRI);
 #else
 		if (needed_filters.evfilt_read == 0 &&
@@ -344,7 +348,7 @@ registered_fds_node_feed_event(RegisteredFDsNode *fd2_node,
 		}
 	}
 
-#ifdef EVFILT_EXCEPT
+#ifdef ELABLE_EVFILT_EXCEPT
 	assert(kev->filter == EVFILT_READ || kev->filter == EVFILT_WRITE ||
 	    kev->filter == EVFILT_EXCEPT);
 #else
@@ -354,7 +358,7 @@ registered_fds_node_feed_event(RegisteredFDsNode *fd2_node,
 
 	if (kev->filter == EVFILT_READ) {
 		revents |= EPOLLIN;
-#ifndef EVFILT_EXCEPT
+#ifndef ELABLE_EVFILT_EXCEPT
 		if (fd2_node->events & EPOLLPRI) {
 			struct pollfd pfd = {
 			    .fd = fd2_node->fd,
@@ -373,10 +377,9 @@ registered_fds_node_feed_event(RegisteredFDsNode *fd2_node,
 	} else if (kev->filter == EVFILT_WRITE) {
 		revents |= EPOLLOUT;
 	}
-#ifdef EVFILT_EXCEPT
+#ifdef ELABLE_EVFILT_EXCEPT
 	else if (kev->filter == EVFILT_EXCEPT) {
 		assert((kev->fflags & NOTE_OOB) != 0);
-
 		revents |= EPOLLPRI;
 		goto out;
 	}
@@ -501,7 +504,7 @@ out:
 		} else if (kev->filter == EVFILT_WRITE) {
 			fd2_node->got_evfilt_write = true;
 		}
-#ifdef EVFILT_EXCEPT
+#ifdef ELABLE_EVFILT_EXCEPT
 		else if (kev->filter == EVFILT_EXCEPT) {
 			fd2_node->got_evfilt_except = true;
 		}
@@ -525,7 +528,7 @@ registered_fds_node_register_for_completion(int *kq,
 		    EV_ADD | EV_ONESHOT | EV_RECEIPT, 0, 0, fd2_node);
 	}
 	if (fd2_node->has_evfilt_except && !fd2_node->got_evfilt_except) {
-#ifdef EVFILT_EXCEPT
+#ifdef ELABLE_EVFILT_EXCEPT
 		EV_SET(&kev[n++], fd2_node->fd, EVFILT_EXCEPT,
 		    EV_ADD | EV_ONESHOT | EV_RECEIPT, NOTE_OOB, 0, fd2_node);
 #else
@@ -873,7 +876,7 @@ epollfd_ctx__register_events(EpollFDCtx *epollfd, RegisteredFDsNode *fd2_node)
 		assert(n != 0);
 
 		if (needed_filters.evfilt_except) {
-#ifdef EVFILT_EXCEPT
+#ifdef ELABLE_EVFILT_EXCEPT
 			fd2_node->has_evfilt_except = true;
 			EV_SET(&kev[n++], fd2, EVFILT_EXCEPT,
 			    EV_ADD | (needed_filters.evfilt_except & EV_CLEAR),

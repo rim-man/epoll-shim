@@ -1,6 +1,7 @@
 #ifndef SIGNALFD_CTX_H_
 #define SIGNALFD_CTX_H_
 
+#include <errno.h>
 #include <signal.h>
 #include <stdint.h>
 #include <stdlib.h>

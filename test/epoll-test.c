@@ -51,7 +51,12 @@ connector_client(void *arg)
 {
 	(void)arg;
 
+#ifdef __APPLE__
+	int sock = socket(PF_INET, SOCK_STREAM, 0);
+	ATF_REQUIRE(fcntl(sock, F_SETFD, FD_CLOEXEC) != -1);
+#else
 	int sock = socket(PF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+#endif
 	ATF_REQUIRE(sock >= 0);
 
 	if (connector_epfd >= 0) {
@@ -91,7 +96,12 @@ connector_client(void *arg)
 static int
 create_bound_socket()
 {
+#ifdef __APPLE__
+	int sock = socket(PF_INET, SOCK_STREAM, 0);
+	ATF_REQUIRE(fcntl(sock, F_SETFD, FD_CLOEXEC) != -1);
+#else
 	int sock = socket(PF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+#endif
 	ATF_REQUIRE(sock >= 0);
 
 	int enable = 1;
@@ -120,7 +130,12 @@ fd_tcp_socket(int fds[3])
 	ATF_REQUIRE(
 	    pthread_create(&client_thread, NULL, connector_client, NULL) == 0);
 
+#ifdef __APPLE__
+	int conn = accept(sock, NULL, NULL);
+	ATF_REQUIRE(fcntl(conn, F_SETFD, FD_CLOEXEC) != -1);
+#else
 	int conn = accept4(sock, NULL, NULL, SOCK_CLOEXEC);
+#endif
 	ATF_REQUIRE(conn >= 0);
 
 	void *client_socket = NULL;
@@ -902,7 +917,12 @@ ATF_TC_BODY_FD_LEAKCHECK(epoll__socket_shutdown, tcptr)
 ATF_TC_WITHOUT_HEAD(epoll__epollhup_on_fresh_socket);
 ATF_TC_BODY_FD_LEAKCHECK(epoll__epollhup_on_fresh_socket, tcptr)
 {
+#ifdef __APPLE__
+	int sock = socket(PF_INET, SOCK_STREAM, 0);
+	ATF_REQUIRE(fcntl(sock, F_SETFD, FD_CLOEXEC) != -1);
+#else
 	int sock = socket(PF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+#endif
 	ATF_REQUIRE(sock >= 0);
 
 	int ep = epoll_create1(EPOLL_CLOEXEC);
@@ -943,9 +963,14 @@ ATF_TC_BODY_FD_LEAKCHECK(epoll__epollout_on_connecting_socket, tcptr)
 
 	for (;;) {
 		bool success = false;
-
+#ifdef __APPLE__
+		int sock = socket(PF_INET, SOCK_STREAM, 0);
+		ATF_REQUIRE(fcntl(sock, F_SETFL, O_NONBLOCK) != -1);
+		ATF_REQUIRE(fcntl(sock, F_SETFD, FD_CLOEXEC) != -1);
+#else
 		int sock = socket(PF_INET, /**/
 		    SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+#endif
 		ATF_REQUIRE(sock >= 0);
 
 		struct epoll_event event = {.events = EPOLLIN | EPOLLRDHUP |
@@ -1217,7 +1242,12 @@ ATF_TC_HEAD(epoll__timeout_on_listening_socket, tc)
 }
 ATF_TC_BODY_FD_LEAKCHECK(epoll__timeout_on_listening_socket, tcptr)
 {
+#ifdef __APPLE__
+	int sock = socket(PF_INET, SOCK_STREAM, 0);
+	ATF_REQUIRE(fcntl(sock, F_SETFD, FD_CLOEXEC) != -1);
+#else
 	int sock = socket(PF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+#endif
 	ATF_REQUIRE(sock >= 0);
 
 	int enable = 1;
@@ -1427,7 +1457,12 @@ datagram_connector(void *arg)
 {
 	(void)arg;
 
+#ifdef __APPLE__
+	int sock = socket(PF_INET, SOCK_DGRAM, 0);
+	ATF_REQUIRE(fcntl(sock, F_SETFD, FD_CLOEXEC) != -1);
+#else
 	int sock = socket(PF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
+#endif
 	ATF_REQUIRE(sock >= 0);
 
 	struct sockaddr_in addr = {0};
@@ -1458,7 +1493,12 @@ ATF_TC_BODY_FD_LEAKCHECK(epoll__datagram_connection, tcptr)
 	int ep = epoll_create1(EPOLL_CLOEXEC);
 	ATF_REQUIRE(ep >= 0);
 
+#ifdef __APPLE__
+	int sock = socket(PF_INET, SOCK_DGRAM, 0);
+	ATF_REQUIRE(fcntl(sock, F_SETFD, FD_CLOEXEC) != -1);
+#else
 	int sock = socket(PF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
+#endif
 	ATF_REQUIRE(sock >= 0);
 
 	int enable = 1;

@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include "atf-c-leakcheck.h"
+#include "macos-ports.h"
 
 #ifndef nitems
 #define nitems(x) (sizeof((x)) / sizeof((x)[0]))

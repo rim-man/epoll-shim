@@ -71,9 +71,17 @@ ATF_TC_WITHOUT_HEAD(socketpair__simple_edge_triggering);
 ATF_TC_BODY_FD_LEAKCHECK(socketpair__simple_edge_triggering, tc)
 {
 	int p[2] = {-1, -1};
+#ifdef __APPLE__
+	ATF_REQUIRE(socketpair(PF_LOCAL, SOCK_STREAM, 0, p) == 0);
+	ATF_REQUIRE(fcntl(p[0], F_SETFL, O_NONBLOCK) != -1);
+	ATF_REQUIRE(fcntl(p[0], F_SETFD, FD_CLOEXEC) != -1);
+	ATF_REQUIRE(fcntl(p[1], F_SETFL, O_NONBLOCK) != -1);
+	ATF_REQUIRE(fcntl(p[1], F_SETFD, FD_CLOEXEC) != -1);
+#else
 	ATF_REQUIRE(socketpair(PF_LOCAL,
 			SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0,
 			p) == 0);
+#endif
 
 	int ep = epoll_create1(EPOLL_CLOEXEC);
 	ATF_REQUIRE(ep >= 0);
@@ -173,9 +181,17 @@ ATF_TC_WITHOUT_HEAD(socketpair__epollhup);
 ATF_TC_BODY_FD_LEAKCHECK(socketpair__epollhup, tc)
 {
 	int p[2] = {-1, -1};
+#ifdef __APPLE__
+	ATF_REQUIRE(socketpair(PF_LOCAL, SOCK_STREAM, 0, p) == 0);
+	ATF_REQUIRE(fcntl(p[0], F_SETFL, O_NONBLOCK) != -1);
+	ATF_REQUIRE(fcntl(p[0], F_SETFD, FD_CLOEXEC) != -1);
+	ATF_REQUIRE(fcntl(p[1], F_SETFL, O_NONBLOCK) != -1);
+	ATF_REQUIRE(fcntl(p[1], F_SETFD, FD_CLOEXEC) != -1);
+#else
 	ATF_REQUIRE(socketpair(PF_LOCAL,
 			SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0,
 			p) == 0);
+#endif
 
 	int ep = epoll_create1(EPOLL_CLOEXEC);
 	ATF_REQUIRE(ep >= 0);
@@ -204,10 +220,17 @@ ATF_TC_WITHOUT_HEAD(socketpair__epollrdhup);
 ATF_TC_BODY_FD_LEAKCHECK(socketpair__epollrdhup, tc)
 {
 	int p[2] = {-1, -1};
+#ifdef __APPLE__
+	ATF_REQUIRE(socketpair(PF_LOCAL, SOCK_STREAM, 0, p) == 0);
+	ATF_REQUIRE(fcntl(p[0], F_SETFL, O_NONBLOCK) != -1);
+	ATF_REQUIRE(fcntl(p[0], F_SETFD, FD_CLOEXEC) != -1);
+	ATF_REQUIRE(fcntl(p[1], F_SETFL, O_NONBLOCK) != -1);
+	ATF_REQUIRE(fcntl(p[1], F_SETFD, FD_CLOEXEC) != -1);
+#else
 	ATF_REQUIRE(socketpair(PF_LOCAL,
 			SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0,
 			p) == 0);
-
+#endif
 	int ep = epoll_create1(EPOLL_CLOEXEC);
 	ATF_REQUIRE(ep >= 0);
 

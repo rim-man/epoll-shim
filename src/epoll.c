@@ -16,6 +16,19 @@
 
 #ifdef __NetBSD__
 #define ppoll pollts
+#elif defined(__APPLE__)
+int
+ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout_ts, const sigset_t *sigmask)
+{
+	const int timeout = (timeout_ts == NULL)
+		? -1
+		: (int)(timeout_ts->tv_sec * 1000 + timeout_ts->tv_nsec / 1000000);
+	sigset_t origmask;
+	sigprocmask(SIG_SETMASK, sigmask, &origmask);
+	int ready = poll(fds, nfds, timeout);
+	sigprocmask(SIG_SETMASK, &origmask, NULL);
+	return ready;
+}
 #endif
 
 // TODO(jan): Remove this once the definition is exposed in <sys/time.h> in

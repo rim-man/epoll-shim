@@ -10,6 +10,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "macos-ports.h"
+
 static int fd_leak_test_a;
 static int fd_leak_test_b;
 static int fd_leak_test_c;

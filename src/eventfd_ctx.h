@@ -1,6 +1,7 @@
 #ifndef EVENTFD_CTX_H_
 #define EVENTFD_CTX_H_
 
+#include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>

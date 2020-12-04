@@ -11,10 +11,21 @@ extern "C" {
 #define TFD_NONBLOCK O_NONBLOCK
 #define TFD_CLOEXEC O_CLOEXEC
 
+#ifndef TIMER_ABSTIME
+#define TIMER_ABSTIME 1
+#endif
 #define TFD_TIMER_ABSTIME 1
 #define TFD_TIMER_CANCEL_ON_SET (1 << 1)
 
 struct itimerspec;
+
+#ifdef __APPLE__
+/* POSIX.1b structure for timer start values and intervals.  */
+struct itimerspec {
+	struct timespec it_interval;
+	struct timespec it_value;
+};
+#endif
 
 int timerfd_create(int, int);
 int timerfd_settime(int, int, const struct itimerspec *, struct itimerspec *);

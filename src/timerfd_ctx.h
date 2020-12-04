@@ -6,8 +6,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <errno.h>
 #include <pthread.h>
 #include <time.h>
+
+#include "sys/timerfd.h"
 
 typedef struct {
 	int kq; // non owning

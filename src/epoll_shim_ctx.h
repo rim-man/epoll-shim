@@ -1,7 +1,11 @@
 #ifndef EPOLL_SHIM_CTX_H_
 #define EPOLL_SHIM_CTX_H_
 
+#ifdef __APPLE__
+#include "tree.h"
+#else
 #include <sys/tree.h>
+#endif
 
 #include <unistd.h>
 

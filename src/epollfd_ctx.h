@@ -5,7 +5,11 @@
 #include <sys/epoll.h>
 
 #include <sys/queue.h>
+#ifdef __APPLE__
+#include "tree.h"
+#else
 #include <sys/tree.h>
+#endif
 
 #include <stdbool.h>
 #include <stdint.h>
